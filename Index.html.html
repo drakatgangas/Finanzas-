@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finanzas · Dra. Kat</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --parchment: #ede6d6;
+    --cocoa: #3d2b1f;
+    --espresso: #2a1a10;
+    --gold: #b8955a;
+    --gold-light: #d4aa6e;
+    --muted: #8a7560;
+    --red: #8b3a3a;
+    --green: #3a6b4a;
+    --border: rgba(61,43,31,0.15);
+    --lua: #4a6b7a;
+    --kin: #6b4a2a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--cream); color: var(--cocoa); font-family: 'Cormorant Garamond', serif; min-height: 100vh; padding: 0 0 60px; }
+  header { background: var(--espresso); padding: 28px 32px 22px; text-align: center; border-bottom: 2px solid var(--gold); }
+  header::after { content: ''; display: block; width: 60px; height: 1px; background: var(--gold); margin: 10px auto 0; }
+  header h1 { font-size: 2.1rem; font-weight: 300; letter-spacing: 0.12em; color: var(--cream); text-transform: uppercase; }
+  header h1 span { color: var(--gold); font-style: italic; font-weight: 400; }
+  header p { color: var(--muted); font-size: 0.85rem; letter-spacing: 0.18em; margin-top: 4px; font-family: 'DM Mono', monospace; }
+
+  .tabs { display: flex; justify-content: center; background: var(--parchment); border-bottom: 1px solid var(--border); }
+  .tab-btn { padding: 16px 36px; background: none; border: none; border-bottom: 3px solid transparent; font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; letter-spacing: 0.1em; color: var(--muted); cursor: pointer; transition: all 0.25s; text-transform: uppercase; }
+  .tab-btn.active { color: var(--cocoa); border-bottom-color: var(--gold); background: var(--cream); font-weight: 600; }
+  .tab-btn:hover:not(.active) { color: var(--cocoa); }
+
+  .container { max-width: 980px; margin: 0 auto; padding: 32px 20px; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 2px; padding: 28px 32px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(61,43,31,0.06); }
+  .card-title { font-size: 1.2rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cocoa); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-grid.four { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  label { font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); font-family: 'DM Mono', monospace; }
+  input, textarea, select { border: 1px solid var(--border); border-radius: 1px; padding: 9px 12px; font-family: 'DM Mono', monospace; font-size: 0.88rem; color: var(--cocoa); background: var(--cream); transition: border-color 0.2s; outline: none; }
+  input:focus, textarea:focus, select:focus { border-color: var(--gold); background: #fff; }
+
+  .result-row { background: var(--parchment); border-left: 3px solid var(--gold); padding: 12px 16px; margin-top: 16px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .result-item { display: flex; flex-direction: column; }
+  .result-item .lbl { font-size: 0.68rem; letter-spacing: 0.15em; color: var(--muted); font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .result-item .val { font-size: 1.25rem; font-weight: 600; color: var(--cocoa); }
+  .result-item .val.green { color: var(--green); }
+  .result-item .val.red { color: var(--red); }
+
+  .btn { background: var(--espresso); color: var(--cream); border: none; padding: 11px 28px; font-family: 'Cormorant Garamond', serif; font-size: 1rem; letter-spacing: 0.1em; cursor: pointer; transition: background 0.2s; border-radius: 1px; text-transform: uppercase; }
+  .btn:hover { background: var(--gold); color: var(--espresso); }
+  .btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+  .btn.secondary:hover { border-color: var(--gold); color: var(--cocoa); background: var(--parchment); }
+  .btn.danger { background: transparent; border: 1px solid var(--red); color: var(--red); padding: 6px 14px; font-size: 0.8rem; }
+  .btn.danger:hover { background: var(--red); color: #fff; }
+  .btn-row { display: flex; gap: 12px; align-items: center; margin-top: 20px; flex-wrap: wrap; }
+
+  .table-wrap { overflow-x: auto; margin-top: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding: 10px 10px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+  td { padding: 11px 10px; border-bottom: 1px solid rgba(61,43,31,0.07); font-family: 'DM Mono', monospace; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--parchment); }
+
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-family: 'DM Mono', monospace; letter-spacing: 0.05em; white-space: nowrap; }
+  .badge.green { background: #e8f3ec; color: var(--green); }
+  .badge.red { background: #f5e8e8; color: var(--red); }
+  .badge.gold { background: #f5eddf; color: #8a6020; }
+  .badge.lua { background: #e3edf2; color: var(--lua); }
+  .badge.kin { background: #f2ebe3; color: var(--kin); }
+
+  /* Clinic selector pills */
+  .clinic-pills { display: flex; gap: 8px; margin-top: 6px; }
+  .clinic-pill { padding: 7px 18px; border-radius: 20px; border: 1.5px solid var(--border); font-family: 'DM Mono', monospace; font-size: 0.78rem; cursor: pointer; background: var(--cream); color: var(--muted); transition: all 0.18s; letter-spacing: 0.05em; }
+  .clinic-pill.selected-lua { border-color: var(--lua); background: #e3edf2; color: var(--lua); font-weight: 500; }
+  .clinic-pill.selected-kin { border-color: var(--kin); background: #f2ebe3; color: var(--kin); font-weight: 500; }
+  .clinic-pill.selected-propia { border-color: var(--gold); background: #f5eddf; color: #8a6020; font-weight: 500; }
+
+  /* Stats row for clinics */
+  .clinic-stats { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+  .cstat { flex: 1; min-width: 140px; padding: 14px 16px; border-radius: 2px; text-align: center; }
+  .cstat.lua { background: #e3edf2; border: 1px solid #b0c8d4; }
+  .cstat.kin { background: #f2ebe3; border: 1px solid #d4baa0; }
+  .cstat.propia { background: #f5eddf; border: 1px solid #d4aa6e; }
+  .cstat .cs-lbl { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .cstat .cs-val { font-size: 1.3rem; font-weight: 600; margin-top: 4px; }
+  .cstat.lua .cs-val { color: var(--lua); }
+  .cstat.kin .cs-val { color: var(--kin); }
+  .cstat.propia .cs-val { color: #8a6020; }
+  .cstat .cs-sub { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); }
+
+  /* Personal */
+  .expense-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(61,43,31,0.06); }
+  .expense-item:last-child { border-bottom: none; }
+  .expense-label { flex: 1; font-size: 0.9rem; color: var(--cocoa); }
+  .expense-label small { display: block; font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); letter-spacing: 0.08em; }
+  .expense-input { width: 150px; text-align: right; }
+  .expense-check { width: 18px; height: 18px; accent-color: var(--gold); cursor: pointer; }
+
+  .totals-bar { background: var(--espresso); color: var(--cream); border-radius: 2px; padding: 20px 28px; display: flex; justify-content: space-around; gap: 20px; flex-wrap: wrap; margin-top: 8px; }
+  .totals-bar .t-item { text-align: center; }
+  .totals-bar .t-lbl { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; color: rgba(245,240,232,0.55); text-transform: uppercase; }
+  .totals-bar .t-val { font-size: 1.5rem; font-weight: 300; color: var(--gold); letter-spacing: 0.04em; }
+
+  .month-nav { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .month-nav select { width: auto; background: #fff; }
+
+  .insumo-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 10px; flex-wrap: wrap; }
+  .insumo-row .field { flex: 1; min-width: 110px; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .dot-pending { background: #c8960a; }
+  .dot-received { background: var(--green); }
+  .dot-partial { background: #8b3a3a; }
+
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+  .empty-state { text-align: center; padding: 32px; color: var(--muted); font-style: italic; font-size: 1rem; }
+
+  @media (max-width: 650px) {
+    .form-grid, .form-grid.three, .form-grid.four { grid-template-columns: 1fr; }
+    .card { padding: 18px 14px; }
+    header h1 { font-size: 1.5rem; }
+    .tab-btn { padding: 12px 16px; font-size: 0.88rem; }
+    .totals-bar { flex-direction: column; align-items: center; }
+    .clinic-stats { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span>Dra. Kat</span> · Finanzas</h1>
+  <p>gestión profesional & personal</p>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('profesional',this)">Profesional</button>
+  <button class="tab-btn" onclick="switchTab('insumos',this)">Insumos</button>
+  <button class="tab-btn" onclick="switchTab('personal',this)">Personal</button>
+</div>
+
+<!-- ===== PROFESIONAL ===== -->
+<div class="section active" id="tab-profesional">
+<div class="container">
+
+  <div class="month-nav">
+    <label style="font-size:0.75rem;font-family:'DM Mono',monospace;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted)">Mes</label>
+    <select id="mes-prof" onchange="renderTabla()">
+      <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+      <option value="4">Abril</option><option value="5">Mayo</option><option value="6" selected>Junio</option>
+      <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+      <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+    </select>
+    <select id="anio-prof" onchange="renderTabla()">
+      <option value="2025">2025</option><option value="2026" selected>2026</option>
+    </select>
+  </div>
+
+  <!-- FORM -->
+  <div class="card">
+    <div class="card-title"><span>✦</span> Registrar Tratamiento</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Paciente</label>
+        <input type="text" id="p-nombre" placeholder="Nombre paciente">
+      </div>
+      <div class="field">
+        <label>Tratamiento</label>
+        <input type="text" id="p-trat" placeholder="Ej: Rinomodelación, Botox...">
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:14px">
+      <label>Clínica</label>
+      <div class="clinic-pills">
+        <button class="clinic-pill selected-lua" id="pill-lua" onclick="selectClinic('Lua Bai')">🌿 Lua Bai</button>
+        <button class="clinic-pill" id="pill-kin" onclick="selectClinic('Kinelawen')">⚡ Kinelawen</button>
+        <button class="clinic-pill" id="pill-propia" onclick="selectClinic('Consulta propia')">✦ Consulta propia</button>
+      </div>
+      <input type="hidden" id="p-clinica" value="Lua Bai">
+    </div>
+
+    <div class="form-grid three" style="margin-top:14px">
+      <div class="field">
+        <label>Valor Insumo ($)</label>
+        <input type="number" id="p-insumo" placeholder="0" oninput="calcGanancia()">
+      </div>
+      <div class="field">
+        <label>Valor Hora Sillón ($)</label>
+        <input type="number" id="p-sillon" placeholder="0" oninput="calcGanancia()">
+      </div>
+      <div class="field">
+        <label>Valor Total Tratamiento ($)</label>
+        <input type="number" id="p-total" placeholder="0" oninput="calcGanancia()">
+      </div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-item"><span class="lbl">Costos</span><span class="val red" id="res-costos">$0</span></div>
+      <div class="result-item"><span class="lbl">Total cobrado</span><span class="val" id="res-total">$0</span></div>
+      <div class="result-item"><span class="lbl">Ganancia neta</span><span class="val green" id="res-ganancia">$0</span></div>
+      <div class="result-item"><span class="lbl">Margen</span><span class="val" id="res-margen">—</span></div>
+    </div>
+
+    <div class="field" style="margin-top:14px">
+      <label>Notas (opcional)</label>
+      <textarea id="p-notas" rows="2" placeholder="Observaciones, próximos controles..."></textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="agregarTratamiento()">+ Agregar registro</button>
+      <button class="btn secondary" onclick="limpiarForm()">Limpiar</button>
+    </div>
+  </div>
+
+  <!-- TABLA -->
+  <div class="card">
+    <div class="card-title"><span>◈</span> Registros del Mes</div>
+
+    <!-- Filtro por clínica -->
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+      <span style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase">Ver:</span>
+      <button class="clinic-pill selected-propia" id="filter-all" onclick="setFilter('all')">Todas</button>
+      <button class="clinic-pill" id="filter-lua" onclick="setFilter('Lua Bai')">🌿 Lua Bai</button>
+      <button class="clinic-pill" id="filter-kin" onclick="setFilter('Kinelawen')">⚡ Kinelawen</button>
+      <button class="clinic-pill" id="filter-propia" onclick="setFilter('Consulta propia')">✦ Consulta propia</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Paciente</th>
+            <th>Tratamiento</th>
+            <th>Clínica</th>
+            <th>Insumo</th>
+            <th>Sillón</th>
+            <th>Total</th>
+            <th>Ganancia</th>
+            <th>Margen</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody-tratamientos">
+          <tr><td colspan="9" class="empty-state">Sin registros este mes</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="totales-prof" class="totals-bar" style="display:none;margin-top:16px">
+      <div class="t-item"><div class="t-lbl">Total ingresos</div><div class="t-val" id="tot-ingresos">$0</div></div>
+      <div class="t-item"><div class="t-lbl">Total costos</div><div class="t-val" id="tot-costos">$0</div></div>
+      <div class="t-item"><div class="t-lbl">Ganancia total</div><div class="t-val" id="tot-ganancia">$0</div></div>
+      <div class="t-item"><div class="t-lbl">Pacientes</div><div class="t-val" id="tot-pacientes">0</div></div>
+    </div>
+
+    <!-- Stats por clínica -->
+    <div id="clinic-stats-wrap" style="display:none">
+      <div style="font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin:18px 0 10px">Desglose por clínica</div>
+      <div class="clinic-stats">
+        <div class="cstat lua"><div class="cs-lbl">🌿 Lua Bai</div><div class="cs-val" id="cs-lua-ing">$0</div><div class="cs-sub" id="cs-lua-p">0 pacientes</div></div>
+        <div class="cstat kin"><div class="cs-lbl">⚡ Kinelawen</div><div class="cs-val" id="cs-kin-ing">$0</div><div class="cs-sub" id="cs-kin-p">0 pacientes</div></div>
+        <div class="cstat propia"><div class="cs-lbl">✦ Consulta propia</div><div class="cs-val" id="cs-pro-ing">$0</div><div class="cs-sub" id="cs-pro-p">0 pacientes</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ===== INSUMOS ===== -->
+<div class="section" id="tab-insumos">
+<div class="container">
+  <div class="card">
+    <div class="card-title"><span>◉</span> Pedido a Laboratorio</div>
+    <div id="insumos-list"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="agregarInsumoRow()">+ Agregar insumo</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span>◈</span> Historial de Pedidos</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Insumo / Producto</th><th>Proveedor</th><th>Cant.</th><th>Precio unit.</th><th>Total</th><th>Estado</th><th>Fecha</th><th></th></tr>
+        </thead>
+        <tbody id="tbody-insumos">
+          <tr><td colspan="8" class="empty-state">Sin pedidos registrados</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="totales-ins" class="totals-bar" style="display:none;margin-top:16px">
+      <div class="t-item"><div class="t-lbl">Total invertido</div><div class="t-val" id="ins-total">$0</div></div>
+      <div class="t-item"><div class="t-lbl">Pedidos</div><div class="t-val" id="ins-count">0</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===== PERSONAL ===== -->
+<div class="section" id="tab-personal">
+<div class="container">
+  <div class="month-nav">
+    <label style="font-size:0.75rem;font-family:'DM Mono',monospace;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted)">Mes</label>
+    <select id="mes-pers" onchange="renderPersonal()">
+      <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+      <option value="4">Abril</option><option value="5">Mayo</option><option value="6" selected>Junio</option>
+      <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+      <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+    </select>
+    <select id="anio-pers" onchange="renderPersonal()">
+      <option value="2025">2025</option><option value="2026" selected>2026</option>
+    </select>
+  </div>
+  <div class="card">
+    <div class="card-title"><span>✦</span> Gastos Fijos del Mes</div>
+    <div id="gastos-list"></div>
+    <div class="divider"></div>
+    <div class="result-row">
+      <div class="result-item"><span class="lbl">Total gastos personales</span><span class="val red" id="total-personal">$0</span></div>
+      <div class="result-item"><span class="lbl">Pagado</span><span class="val green" id="total-pagado">$0</span></div>
+      <div class="result-item"><span class="lbl">Pendiente</span><span class="val" id="total-pendiente" style="color:var(--muted)">$0</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span>◉</span> Gastos extra del mes</div>
+    <div id="extras-list"></div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn" onclick="agregarExtra()">+ Gasto extra</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// STATE
+let tratamientos = JSON.parse(localStorage.getItem('kat-tratamientos') || '{}');
+let insumosData = JSON.parse(localStorage.getItem('kat-insumos') || '[]');
+let personalData = JSON.parse(localStorage.getItem('kat-personal') || '{}');
+let extrasData = JSON.parse(localStorage.getItem('kat-extras') || '{}');
+let currentFilter = 'all';
+
+const GASTOS_FIJOS = [
+  { id: 'arriendo', label: 'Arriendo', icon: '🏠' },
+  { id: 'luz', label: 'Cuenta de Luz', icon: '💡' },
+  { id: 'agua', label: 'Agua', icon: '💧' },
+  { id: 'comida', label: 'Comida / Supermercado', icon: '🛒' },
+  { id: 'celular', label: 'Celular', icon: '📱' },
+  { id: 'tc-tempo', label: 'Tarjeta Crédito Tempo', icon: '💳', sub: 'cuota mensual' },
+  { id: 'tc-falabella', label: 'Tarjeta Crédito Falabella', icon: '💳', sub: 'cuota mensual' },
+  { id: 'bci-pyme', label: 'BCI Pyme', icon: '🏦', sub: 'crédito / cuenta' },
+  { id: 'transbank', label: 'Transbank', icon: '💰', sub: 'comisiones / arriendo POS' },
+  { id: 'manutenciones', label: 'Manutención Tarjetas', icon: '📋', sub: 'cobros prorrateados' },
+  { id: 'gym', label: 'Gym', icon: '🏋🏻‍♀️' },
+  { id: 'uber', label: 'Uber', icon: '🚗', sub: 'traslados del mes' },
+];
+
+function fmt(n) {
+  if (!n || isNaN(n)) return '$0';
+  return '$' + Math.round(n).toLocaleString('es-CL');
+}
+function currentMesPro() { return document.getElementById('mes-prof')?.value || '6'; }
+function currentAnioPro() { return document.getElementById('anio-prof')?.value || '2026'; }
+function currentMesPers() { return document.getElementById('mes-pers')?.value || '6'; }
+function currentAnioPers() { return document.getElementById('anio-pers')?.value || '2026'; }
+
+// TABS
+function switchTab(name, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'personal') renderPersonal();
+  if (name === 'profesional') renderTabla();
+  if (name === 'insumos') renderInsumos();
+}
+
+// CLINIC SELECTOR
+function selectClinic(name) {
+  document.getElementById('p-clinica').value = name;
+  document.querySelectorAll('.clinic-pill[id^="pill-"]').forEach(p => {
+    p.className = 'clinic-pill';
+  });
+  if (name === 'Lua Bai') document.getElementById('pill-lua').className = 'clinic-pill selected-lua';
+  if (name === 'Kinelawen') document.getElementById('pill-kin').className = 'clinic-pill selected-kin';
+  if (name === 'Consulta propia') document.getElementById('pill-propia').className = 'clinic-pill selected-propia';
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('[id^="filter-"]').forEach(p => p.className = 'clinic-pill');
+  if (f === 'all') document.getElementById('filter-all').className = 'clinic-pill selected-propia';
+  else if (f === 'Lua Bai') document.getElementById('filter-lua').className = 'clinic-pill selected-lua';
+  else if (f === 'Kinelawen') document.getElementById('filter-kin').className = 'clinic-pill selected-kin';
+  else if (f === 'Consulta propia') document.getElementById('filter-propia').className = 'clinic-pill selected-propia';
+  renderTabla();
+}
+
+// PROFESIONAL
+function calcGanancia() {
+  const ins = parseFloat(document.getElementById('p-insumo').value) || 0;
+  const sil = parseFloat(document.getElementById('p-sillon').value) || 0;
+  const tot = parseFloat(document.getElementById('p-total').value) || 0;
+  const costos = ins + sil;
+  const gan = tot - costos;
+  const margen = tot > 0 ? ((gan / tot) * 100).toFixed(1) + '%' : '—';
+  document.getElementById('res-costos').textContent = fmt(costos);
+  document.getElementById('res-total').textContent = fmt(tot);
+  document.getElementById('res-ganancia').textContent = fmt(gan);
+  document.getElementById('res-ganancia').className = 'val ' + (gan >= 0 ? 'green' : 'red');
+  document.getElementById('res-margen').textContent = margen;
+}
+
+function agregarTratamiento() {
+  const nombre = document.getElementById('p-nombre').value.trim();
+  const trat = document.getElementById('p-trat').value.trim();
+  const clinica = document.getElementById('p-clinica').value;
+  const ins = parseFloat(document.getElementById('p-insumo').value) || 0;
+  const sil = parseFloat(document.getElementById('p-sillon').value) || 0;
+  const tot = parseFloat(document.getElementById('p-total').value) || 0;
+  const notas = document.getElementById('p-notas').value.trim();
+  if (!nombre) { alert('Ingresa el nombre del paciente'); return; }
+  const key = `prof-${currentAnioPro()}-${currentMesPro()}`;
+  if (!tratamientos[key]) tratamientos[key] = [];
+  tratamientos[key].push({ nombre, trat, clinica, ins, sil, tot, notas, id: Date.now() });
+  localStorage.setItem('kat-tratamientos', JSON.stringify(tratamientos));
+  limpiarForm();
+  renderTabla();
+}
+
+function limpiarForm() {
+  ['p-nombre','p-trat','p-insumo','p-sillon','p-total','p-notas'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  calcGanancia();
+}
+
+function eliminarTratamiento(key, id) {
+  if (!confirm('¿Eliminar este registro?')) return;
+  tratamientos[key] = tratamientos[key].filter(t => t.id !== id);
+  localStorage.setItem('kat-tratamientos', JSON.stringify(tratamientos));
+  renderTabla();
+}
+
+function clinicaBadge(c) {
+  if (c === 'Lua Bai') return `<span class="badge lua">🌿 Lua Bai</span>`;
+  if (c === 'Kinelawen') return `<span class="badge kin">⚡ Kinelawen</span>`;
+  return `<span class="badge gold">✦ Propia</span>`;
+}
+
+function renderTabla() {
+  const key = `prof-${currentAnioPro()}-${currentMesPro()}`;
+  let rows = tratamientos[key] || [];
+  if (currentFilter !== 'all') rows = rows.filter(r => r.clinica === currentFilter);
+
+  const tbody = document.getElementById('tbody-tratamientos');
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="empty-state">Sin registros este mes</td></tr>';
+    document.getElementById('totales-prof').style.display = 'none';
+    document.getElementById('clinic-stats-wrap').style.display = 'none';
+    return;
+  }
+  let totIng = 0, totCos = 0, totGan = 0;
+  tbody.innerHTML = rows.map(r => {
+    const costos = r.ins + r.sil;
+    const gan = r.tot - costos;
+    const margen = r.tot > 0 ? ((gan / r.tot) * 100).toFixed(0) + '%' : '—';
+    totIng += r.tot; totCos += costos; totGan += gan;
+    return `<tr>
+      <td><strong>${r.nombre}</strong>${r.notas ? '<br><small style="color:var(--muted);font-size:0.7rem">'+r.notas+'</small>' : ''}</td>
+      <td>${r.trat || '—'}</td>
+      <td>${clinicaBadge(r.clinica || 'Consulta propia')}</td>
+      <td>${fmt(r.ins)}</td>
+      <td>${fmt(r.sil)}</td>
+      <td><strong>${fmt(r.tot)}</strong></td>
+      <td><span class="badge ${gan>=0?'green':'red'}">${fmt(gan)}</span></td>
+      <td>${margen}</td>
+      <td><button class="btn danger" onclick="eliminarTratamiento('${key}',${r.id})">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('totales-prof').style.display = 'flex';
+  document.getElementById('tot-ingresos').textContent = fmt(totIng);
+  document.getElementById('tot-costos').textContent = fmt(totCos);
+  document.getElementById('tot-ganancia').textContent = fmt(totGan);
+  document.getElementById('tot-pacientes').textContent = rows.length;
+
+  // Stats por clínica (siempre sobre todos los registros del mes, sin filtro)
+  const allRows = tratamientos[key] || [];
+  const byClinic = (name) => allRows.filter(r => (r.clinica || 'Consulta propia') === name);
+  const sumIng = arr => arr.reduce((s,r) => s + r.tot, 0);
+  document.getElementById('cs-lua-ing').textContent = fmt(sumIng(byClinic('Lua Bai')));
+  document.getElementById('cs-lua-p').textContent = byClinic('Lua Bai').length + ' pacientes';
+  document.getElementById('cs-kin-ing').textContent = fmt(sumIng(byClinic('Kinelawen')));
+  document.getElementById('cs-kin-p').textContent = byClinic('Kinelawen').length + ' pacientes';
+  document.getElementById('cs-pro-ing').textContent = fmt(sumIng(byClinic('Consulta propia')));
+  document.getElementById('cs-pro-p').textContent = byClinic('Consulta propia').length + ' pacientes';
+  document.getElementById('clinic-stats-wrap').style.display = allRows.length > 0 ? 'block' : 'none';
+}
+
+// INSUMOS
+let insumoRows = [];
+function agregarInsumoRow() {
+  const id = Date.now();
+  insumoRows.push(id);
+  const div = document.createElement('div');
+  div.className = 'insumo-row';
+  div.id = 'ir-' + id;
+  div.innerHTML = `
+    <div class="field"><label>Producto / Insumo</label><input type="text" id="in-prod-${id}" placeholder="Ej: Juvelook 1ml"></div>
+    <div class="field"><label>Proveedor / Lab</label><input type="text" id="in-prov-${id}" placeholder="Ej: Dermacos"></div>
+    <div class="field" style="max-width:80px"><label>Cantidad</label><input type="number" id="in-cant-${id}" value="1" min="1"></div>
+    <div class="field"><label>Precio unit. ($)</label><input type="number" id="in-precio-${id}" placeholder="0"></div>
+    <div class="field"><label>Estado</label>
+      <select id="in-est-${id}">
+        <option value="pendiente">Pendiente</option>
+        <option value="recibido">Recibido</option>
+        <option value="parcial">Parcial</option>
+      </select>
+    </div>
+    <div style="display:flex;align-items:flex-end;padding-bottom:2px;gap:6px">
+      <button class="btn secondary" style="padding:9px 12px;font-size:1rem" onclick="guardarInsumo(${id})">✓</button>
+      <button class="btn danger" onclick="quitarInsumoRow(${id})">✕</button>
+    </div>`;
+  document.getElementById('insumos-list').appendChild(div);
+}
+
+function quitarInsumoRow(id) {
+  const el = document.getElementById('ir-'+id);
+  if (el) el.remove();
+  insumoRows = insumoRows.filter(i => i !== id);
+}
+
+function guardarInsumo(id) {
+  const prod = document.getElementById(`in-prod-${id}`)?.value.trim();
+  const prov = document.getElementById(`in-prov-${id}`)?.value.trim();
+  const cant = parseInt(document.getElementById(`in-cant-${id}`)?.value) || 1;
+  const precio = parseFloat(document.getElementById(`in-precio-${id}`)?.value) || 0;
+  const est = document.getElementById(`in-est-${id}`)?.value;
+  if (!prod) { alert('Ingresa el nombre del producto'); return; }
+  insumosData.push({ prod, prov, cant, precio, est, fecha: new Date().toLocaleDateString('es-CL'), id: Date.now() });
+  localStorage.setItem('kat-insumos', JSON.stringify(insumosData));
+  quitarInsumoRow(id);
+  renderInsumos();
+}
+
+function eliminarInsumo(id) {
+  if (!confirm('¿Eliminar este insumo?')) return;
+  insumosData = insumosData.filter(i => i.id !== id);
+  localStorage.setItem('kat-insumos', JSON.stringify(insumosData));
+  renderInsumos();
+}
+
+function renderInsumos() {
+  const tbody = document.getElementById('tbody-insumos');
+  if (insumosData.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">Sin pedidos registrados</td></tr>';
+    document.getElementById('totales-ins').style.display = 'none';
+    return;
+  }
+  let total = 0;
+  tbody.innerHTML = insumosData.map(r => {
+    const sub = r.cant * r.precio;
+    total += sub;
+    const badge = {
+      pendiente: `<span class="status-dot dot-pending"></span>Pendiente`,
+      recibido: `<span class="status-dot dot-received"></span>Recibido`,
+      parcial: `<span class="status-dot dot-partial"></span>Parcial`,
+    }[r.est] || r.est;
+    return `<tr>
+      <td><strong>${r.prod}</strong></td>
+      <td>${r.prov||'—'}</td><td>${r.cant}</td>
+      <td>${fmt(r.precio)}</td><td><strong>${fmt(sub)}</strong></td>
+      <td style="white-space:nowrap">${badge}</td>
+      <td style="font-size:0.8rem;color:var(--muted)">${r.fecha}</td>
+      <td><button class="btn danger" onclick="eliminarInsumo(${r.id})">✕</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('totales-ins').style.display = 'flex';
+  document.getElementById('ins-total').textContent = fmt(total);
+  document.getElementById('ins-count').textContent = insumosData.length;
+}
+
+// PERSONAL
+function getPersonalKey(mes, anio) { return `${anio}-${mes}`; }
+
+function renderPersonal() {
+  const mes = currentMesPers(), anio = currentAnioPers();
+  const key = getPersonalKey(mes, anio);
+  const data = personalData[key] || {};
+  const list = document.getElementById('gastos-list');
+  list.innerHTML = GASTOS_FIJOS.map(g => {
+    const val = data[g.id]?.value || '';
+    const paid = data[g.id]?.paid || false;
+    return `<div class="expense-item">
+      <span style="font-size:1.2rem">${g.icon}</span>
+      <div class="expense-label">${g.label}${g.sub?`<small>${g.sub}</small>`:''}</div>
+      <input class="expense-input" type="number" id="gasto-${g.id}" value="${val}" placeholder="0"
+        oninput="savePersonal('${mes}','${anio}')" onchange="savePersonal('${mes}','${anio}')">
+      <input type="checkbox" class="expense-check" id="paid-${g.id}" ${paid?'checked':''}
+        onchange="savePersonal('${mes}','${anio}')" title="Marcar como pagado">
+    </div>`;
+  }).join('');
+  renderExtras(mes, anio);
+  updatePersonalTotals(mes, anio);
+}
+
+function savePersonal(mes, anio) {
+  const key = getPersonalKey(mes, anio);
+  if (!personalData[key]) personalData[key] = {};
+  GASTOS_FIJOS.forEach(g => {
+    const v = document.getElementById(`gasto-${g.id}`);
+    const p = document.getElementById(`paid-${g.id}`);
+    if (v) personalData[key][g.id] = { value: parseFloat(v.value)||0, paid: p?.checked||false };
+  });
+  localStorage.setItem('kat-personal', JSON.stringify(personalData));
+  updatePersonalTotals(mes, anio);
+}
+
+function updatePersonalTotals(mes, anio) {
+  const key = getPersonalKey(mes, anio);
+  const data = personalData[key] || {};
+  let total = 0, pagado = 0;
+  GASTOS_FIJOS.forEach(g => {
+    const v = data[g.id]?.value || 0;
+    total += v;
+    if (data[g.id]?.paid) pagado += v;
+  });
+  const extKey = `extras-${key}`;
+  (extrasData[extKey] || []).forEach(e => { total += e.val; if (e.paid) pagado += e.val; });
+  document.getElementById('total-personal').textContent = fmt(total);
+  document.getElementById('total-pagado').textContent = fmt(pagado);
+  document.getElementById('total-pendiente').textContent = fmt(total - pagado);
+}
+
+function agregarExtra() {
+  const mes = currentMesPers(), anio = currentAnioPers();
+  const id = Date.now();
+  const div = document.createElement('div');
+  div.className = 'expense-item';
+  div.id = 'extra-' + id;
+  div.innerHTML = `
+    <span style="font-size:1.2rem">➕</span>
+    <input type="text" style="flex:1;background:var(--cream);border:1px solid var(--border);border-radius:1px;padding:8px 10px;font-family:'DM Mono',monospace;font-size:0.85rem" placeholder="Descripción" id="extra-desc-${id}">
+    <input class="expense-input" type="number" id="extra-val-${id}" placeholder="0">
+    <input type="checkbox" class="expense-check" id="extra-paid-${id}" title="Pagado">
+    <button class="btn danger" onclick="guardarExtra(${id},'${mes}','${anio}')">✓</button>
+    <button class="btn danger" onclick="document.getElementById('extra-${id}').remove()">✕</button>`;
+  document.getElementById('extras-list').appendChild(div);
+}
+
+function guardarExtra(id, mes, anio) {
+  const desc = document.getElementById(`extra-desc-${id}`)?.value.trim();
+  const val = parseFloat(document.getElementById(`extra-val-${id}`)?.value) || 0;
+  const paid = document.getElementById(`extra-paid-${id}`)?.checked || false;
+  if (!desc) { alert('Agrega una descripción'); return; }
+  const extKey = `extras-${getPersonalKey(mes, anio)}`;
+  if (!extrasData[extKey]) extrasData[extKey] = [];
+  extrasData[extKey].push({ desc, val, paid, id: Date.now() });
+  localStorage.setItem('kat-extras', JSON.stringify(extrasData));
+  document.getElementById('extra-'+id)?.remove();
+  renderExtras(mes, anio);
+  updatePersonalTotals(mes, anio);
+}
+
+function eliminarExtra(extKey, id) {
+  extrasData[extKey] = (extrasData[extKey]||[]).filter(e => e.id !== id);
+  localStorage.setItem('kat-extras', JSON.stringify(extrasData));
+  renderExtras(currentMesPers(), currentAnioPers());
+  updatePersonalTotals(currentMesPers(), currentAnioPers());
+}
+
+function toggleExtraPaid(extKey, id) {
+  extrasData[extKey] = (extrasData[extKey]||[]).map(e => e.id===id ? {...e, paid:!e.paid} : e);
+  localStorage.setItem('kat-extras', JSON.stringify(extrasData));
+  updatePersonalTotals(currentMesPers(), currentAnioPers());
+}
+
+function renderExtras(mes, anio) {
+  const extKey = `extras-${getPersonalKey(mes, anio)}`;
+  const exts = extrasData[extKey] || [];
+  const list = document.getElementById('extras-list');
+  list.querySelectorAll('[data-saved]').forEach(e => e.remove());
+  exts.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'expense-item';
+    div.setAttribute('data-saved','1');
+    div.innerHTML = `
+      <span style="font-size:1.2rem">📌</span>
+      <div class="expense-label">${e.desc}</div>
+      <span style="font-family:'DM Mono',monospace;font-size:0.9rem;width:150px;text-align:right;color:var(--cocoa)">${fmt(e.val)}</span>
+      <input type="checkbox" class="expense-check" ${e.paid?'checked':''} onchange="toggleExtraPaid('${extKey}',${e.id})" title="Pagado">
+      <button class="btn danger" onclick="eliminarExtra('${extKey}',${e.id})">✕</button>`;
+    list.appendChild(div);
+  });
+}
+
+// INIT
+renderTabla();
+renderPersonal();
+</script>
+</body>
+</html>
